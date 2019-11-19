@@ -1,5 +1,5 @@
 # BrainFuck interpreter
-![](https://img.shields.io/pypi/v/brainfuck-swimmy4days) ![](https://img.shields.io/pypi/l/brainfuck-swimmy4days) 
+![](https://img.shields.io/pypi/v/brainfuck-swimmy4days) ![](https://img.shields.io/pypi/l/brainfuck-swimmy4days) ![](https://img.shields.io/codacy/grade/54cf04f725fd4d06a26f0c1a3aa02e13)
 - A simple to use, open source brainfuck interpreter
 - Easy to run
 - Optional debugger
