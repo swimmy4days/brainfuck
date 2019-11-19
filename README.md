@@ -2,7 +2,7 @@
 ![](https://img.shields.io/pypi/v/brainfuck-swimmy4days) ![](https://img.shields.io/pypi/l/brainfuck-swimmy4days) 
 - A simple to use, open source brainfuck interpreter
 - Easy to run
-- Optional debugger, 
+- Optional debugger
 - Changeable  cell size
 - Print as an integer insted of ASCII 
 - And mush more features
