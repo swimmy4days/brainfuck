@@ -44,7 +44,7 @@ def parser():
                 program = f.read()
                 if extension.lower() != ".bf" and not args.no_warnings:
                     print("Warning: Unsupported Extension, Supports Only *.bf Files")
-        except Exception as e:
+        except Exception:
             print("Error: Could Not Find The Source File!")
             exit(1)
 
@@ -134,7 +134,7 @@ def parser():
                             prgPointer -= 1
                 prgPointer += 1
 
-    except Exception as e:
+    except Exception:
         print("Error: Unknown Error")
         exit(1)
 

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="brainfuck-swimmy4days",
-    version="0.0.1",
+    version="0.0.2",
     author="Ido Drori",
     author_email="idonevodrori@gmail.com",
     description="A BrainFuck Interpreter",
