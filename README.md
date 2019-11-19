@@ -26,7 +26,7 @@ brainfuck is an esoteric programming language with only 8 oparetions
 
 # To download from PYPI 
 
-`$ python -m pip install brainfuck `
+`$ python -m pip install brainfuck-swimmy4days`
 
 #### To download the required packages in order to run the source type in the shell 
 `$ python -m pip install -r requirements.txt`
