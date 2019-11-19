@@ -12,16 +12,12 @@ if version_info.major != 3:
     exit(1)
 
 
-def ctrlCHandler(signal_received, frame):
-    # Handle any cleanup here
-    stdout.flush()
-    print('Error: The Process Was Closed By The User')
-    exit(1)
-
-
-def main():
+def parser():
     try:
-        signal(SIGINT, ctrlCHandler)
+        signal(SIGINT, lambda s, f: (
+               stdout.flush(),
+               print('Error: The Process Was Closed By The User'),
+               exit(1)))
         parser = ArgumentParser(prog="BrainFuck Parser",
                                 formatter_class=RawDescriptionHelpFormatter,
                                 description=('''Interperete And Runs A BrainFuck (*.bf) Program
@@ -30,7 +26,8 @@ def main():
     The Debugger Goes Through Each Commend And Shows The Tape And The Current Instruction
     Example: python ./parser.py HelloWorld.bf'''), epilog="Made By swimmy4days")
         parser.add_argument("file", help="The Path To The BrainFuck File",  type=str)
-        parser.add_argument("-s", "--size", help="Set The Maximum Size Of Each Cell", default=255, type=int, dest="size", metavar="Size")
+        parser.add_argument("-s", "--size", help="Set The Maximum Size Of Each Cell",
+                            default=255, type=int, dest="size", metavar="Size")
         parser.add_argument("-i", "--intify", help="Prints The Numbers Inside The Cells As An Integer", action='store_true')
         parser.add_argument("-d", "--debug", dest="debug", metavar="Sec", type=float, nargs='?', default=-1, required=False,
                             help="Enables The Debugger, Sec - The Amount Of Time Between Each Operation In Seconds (default 0.1 Seconds)")
@@ -143,4 +140,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser()
