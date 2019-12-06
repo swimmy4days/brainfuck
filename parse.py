@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-from signal import SIGINT, signal
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from signal import SIGINT, signal
+from readchar import readchar
+from sys import version_info
 from reprint import output
 from time import sleep
-from sys import stdout, version_info
 from os import path
+import constants
 
 if version_info.major != 3:
-    raise(EnvironmentError("Error: Unsupported Python Version"))
+    raise(EnvironmentError(constants.UNSUPPORTED_VERSION))
 
 
 class Parser(object):
@@ -25,11 +27,21 @@ class Parser(object):
     """
 
     def __init__(self, file=None, debug=False, intify=False, no_warnings=False, size=255):
+        """Summary
+
+        Args:
+            file (string, required)
+            debug (bool, optional)
+            intify (bool, optional)
+            no_warnings (bool, optional)
+            size (int, optional
+        """
+        super(Parser, self).__init__()
         if not file:
-            raise(EnvironmentError("Error: Must Provide A Source File"))
+            raise(EnvironmentError(constants.NO_FILE))
         bracket = 0
         self.debug = None
-        self.program = None
+        self.program = str()
         self.intify = intify
         self.no_warnings = no_warnings
         self.maxCellSize = size
@@ -40,29 +52,29 @@ class Parser(object):
         try:
             with open(file) as f:
                 extension = path.splitext(file)[1]
-                self.program = f.read()
+                program = f.read()
                 if extension.lower() != ".bf" and not self.no_warnings:
-                    print("Warning: Unsupported Extension, Supports Only *.bf Files")
+                    print(constants.BF_FILES)
         except Exception:
-            raise(EnvironmentError("Error: Could Not Find The Source File!"))
+            raise(EnvironmentError(constants.NO_FILE))
 
-        self.program = self.program.replace("\n", "")
-        self.program += " "
-
-        for char in self.program:
+        letters = ['[', ']', '+', '-', ',', '.', '<', '>']
+        for char in program:
+            if char in letters:
+                self.program += char
             if char == '[':
                 bracket += 1
             elif char == ']':
                 bracket -= 1
 
         if bracket and not self.no_warnings:
-            print("Warning, Unmatching Number Of '[' To ']' (Invalid Loop)")
+            print(constants.LOOP_WARNING)
 
     def parse(self):
         try:
             signal(SIGINT, lambda s, f: (
-                   stdout.flush(),
-                   print('Error: The Process Was Closed By The User'),
+                   stdout.flush(constants.CTRL_C),
+                   print(),
                    exit(1)))
 
             prgPointer = 0
@@ -71,7 +83,7 @@ class Parser(object):
             prints = ""
             cells = ""
 
-            with output(initial_len=5, interval=0) as output_lines:
+            with output(initial_len=6, interval=0) as output_lines:
                 while prgPointer < len(self.program):
 
                     if self.debug:
@@ -79,11 +91,13 @@ class Parser(object):
                         cells = ""
                         for c in tape:
                             cells += f"{str(c).zfill(len(str(self.maxCellSize)))} "
-                        output_lines[0] = f"Tape: {cells}"
-                        output_lines[1] = "Ptr:  {}^".format((" " * (len(str(self.maxCellSize)) + 1)) * pointer)
-                        output_lines[2] = f"self.Program: {self.program[prgPointer - 1:prgPointer + 71]}"
-                        output_lines[3] = "          ^"
-                        output_lines[4] = f"Output: {prints}"
+                        # output_lines[0] = f"input: "
+                        output_lines[0] = f"       "
+                        output_lines[1] = f"Output: {prints}"
+                        output_lines[2] = f"Tape: {cells}"
+                        output_lines[3] = "Ptr:  {}^".format((" " * (len(str(self.maxCellSize)) + 1)) * pointer)
+                        output_lines[4] = f"Program: {self.program[prgPointer - 1:prgPointer + 71]}"
+                        output_lines[5] = "          ^"
                     else:
                         print(f"Output: {prints}", end="\r")
                     if self.program[prgPointer] == '>':
@@ -93,7 +107,7 @@ class Parser(object):
                     elif self.program[prgPointer] == '<':
                         pointer -= 1
                         if pointer < 0:
-                            raise(EnvironmentError("Error: Out Of Tape!"))
+                            raise(EnvironmentError(constants.TAPE_ERROR))
                     elif self.program[prgPointer] == '+':
                         tape[pointer] += 1
                         if tape[pointer] > self.maxCellSize + 1:
@@ -108,8 +122,9 @@ class Parser(object):
                         else:
                             prints += str(int(tape[pointer]))
                     elif self.program[prgPointer] == ',':
-                        inp = input("Input: ")
-                        tape[pointer] = ord(inp[0])
+                        print("Input: ", end='\r')
+                        inp = readchar()
+                        tape[pointer] = ord(inp.decode())
                     elif self.program[prgPointer] == '[':
                         if tape[pointer] == 0:
                             bracket = 0
@@ -136,26 +151,19 @@ class Parser(object):
                                 prgPointer -= 1
                     prgPointer += 1
 
-        except Exception:
-            raise(EnvironmentError("Error: Unknown Error"))
+        except Exception as e:
+            print(e)
+            raise(EnvironmentError(constants.UNKNOW_ERROR))
 
 
 if __name__ == '__main__':
-    prs = ArgumentParser(prog="BrainFuck Parser",
-                         formatter_class=RawDescriptionHelpFormatter,
-                         description=('''Interperete And Runs A BrainFuck (*.bf) Program
---------------------------------
-    An Easy To Use Simple BrainFuck Interpreter
-    The Debugger Goes Through Each Commend And Shows The Tape And The Current Instruction
-    Example: python ./parser.py HelloWorld.bf'''), epilog="Made By swimmy4days")
-    prs.add_argument("file", help="The Path To The BrainFuck File",  type=str)
-    prs.add_argument("-s", "--size", help="Set The Maximum Size Of Each Cell",
-                     default=255, type=int, dest="size", metavar="Size")
-    prs.add_argument("-i", "--intify", help="Prints The Numbers Inside The Cells As An Integer", action='store_true')
-    prs.add_argument("-d", "--debug", dest="debug", metavar="Sec", type=float, nargs='?', default=-1, required=False,
-                     help="Enables The Debugger, Sec - The Amount Of Time Between Each Operation In Seconds (default 0.1 Seconds)")
-    prs.add_argument("--no_warnings", action='store_true', help="Disables The Parsers Warnings")
+    prs = ArgumentParser(prog=constants.PROGRAM_NAME, formatter_class=RawDescriptionHelpFormatter,
+                         description=(constants.PARSER_MSG), epilog=constants.EPILOG)
+    prs.add_argument("file", help=constants.FILE_HELP,  type=str)
+    prs.add_argument("-s", "--size", help=constants.SIZE_HELP, default=255, type=int, dest="size", metavar="Size")
+    prs.add_argument("-i", "--intify", help=constants.INTIFY_HELP, action='store_true')
+    prs.add_argument("-d", "--debug", dest="debug", metavar="Sec", type=float, nargs='?', default=-1, required=False, help=constants.DEBUG_HELP)
+    prs.add_argument("--no_warnings", action='store_true', help=constants.NO_WARNINGS_HELP)
     args = prs.parse_args()
 
-    a = Parser(args.file, args.debug, args.intify, args.no_warnings, args.size)
-    a.parse()
+    Parser(args.file, args.debug, args.intify, args.no_warnings, args.size).parse()
