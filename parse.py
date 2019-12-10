@@ -3,10 +3,9 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from signal import SIGINT, signal
 from readchar import readchar
-from sys import version_info
-from reprint import output
+from sys import version_info, stdout
 from time import sleep
-from os import path
+from os import path, system
 import constants
 
 if version_info.major != 3:
@@ -49,6 +48,8 @@ class Parser(object):
             self.debug = 0.1
         elif debug < 0:
             self.debug = False
+        elif debug > 0:
+            self.debug = debug
         try:
             with open(file) as f:
                 extension = path.splitext(file)[1]
@@ -66,6 +67,7 @@ class Parser(object):
                 bracket += 1
             elif char == ']':
                 bracket -= 1
+        self.program += ' '
 
         if bracket and not self.no_warnings:
             print(constants.LOOP_WARNING)
@@ -74,7 +76,6 @@ class Parser(object):
         try:
             signal(SIGINT, lambda s, f: (
                    stdout.flush(constants.CTRL_C),
-                   print(),
                    exit(1)))
 
             prgPointer = 0
@@ -83,73 +84,74 @@ class Parser(object):
             prints = ""
             cells = ""
 
-            with output(initial_len=6, interval=0) as output_lines:
-                while prgPointer < len(self.program):
+            # with output(initial_len=6, interval=0) as output_lines:
+            while prgPointer < len(self.program):
 
-                    if self.debug:
-                        sleep(self.debug)
-                        cells = ""
-                        for c in tape:
-                            cells += f"{str(c).zfill(len(str(self.maxCellSize)))} "
-                        # output_lines[0] = f"input: "
-                        output_lines[0] = f"       "
-                        output_lines[1] = f"Output: {prints}"
-                        output_lines[2] = f"Tape: {cells}"
-                        output_lines[3] = "Ptr:  {}^".format((" " * (len(str(self.maxCellSize)) + 1)) * pointer)
-                        output_lines[4] = f"Program: {self.program[prgPointer - 1:prgPointer + 71]}"
-                        output_lines[5] = "          ^"
+                if self.debug:
+                    sleep(self.debug)
+                    cells = ""
+                    for c in tape:
+                        cells += f"{str(c).zfill(len(str(self.maxCellSize)))} "
+
+                    system('CLS')
+                    print(f"       ")
+                    print(f"Output: {prints}")
+                    print(f"Tape: {cells}")
+                    print("Ptr:  {}^".format((" " * (len(str(self.maxCellSize)) + 1)) * pointer))
+                    print(f"Program: {self.program[prgPointer - 1:prgPointer + 71]}")
+                    print("          ^")
+                else:
+                    print(f"Output: {prints}", end="\r")
+                if self.program[prgPointer] == '>':
+                    pointer += 1
+                    if pointer >= len(tape):
+                        tape.append(0)
+                elif self.program[prgPointer] == '<':
+                    pointer -= 1
+                    if pointer < 0:
+                        raise(EnvironmentError(constants.TAPE_ERROR))
+                elif self.program[prgPointer] == '+':
+                    tape[pointer] += 1
+                    if tape[pointer] > self.maxCellSize + 1:
+                        tape[pointer] = 0
+                elif self.program[prgPointer] == '-':
+                    tape[pointer] -= 1
+                    if tape[pointer] < 0:
+                        tape[pointer] = self.maxCellSize
+                elif self.program[prgPointer] == '.':
+                    if not self.intify:
+                        prints += chr(tape[pointer])
                     else:
-                        print(f"Output: {prints}", end="\r")
-                    if self.program[prgPointer] == '>':
-                        pointer += 1
-                        if pointer >= len(tape):
-                            tape.append(0)
-                    elif self.program[prgPointer] == '<':
-                        pointer -= 1
-                        if pointer < 0:
-                            raise(EnvironmentError(constants.TAPE_ERROR))
-                    elif self.program[prgPointer] == '+':
-                        tape[pointer] += 1
-                        if tape[pointer] > self.maxCellSize + 1:
-                            tape[pointer] = 0
-                    elif self.program[prgPointer] == '-':
-                        tape[pointer] -= 1
-                        if tape[pointer] < 0:
-                            tape[pointer] = self.maxCellSize
-                    elif self.program[prgPointer] == '.':
-                        if not self.intify:
-                            prints += chr(tape[pointer])
-                        else:
-                            prints += str(int(tape[pointer]))
-                    elif self.program[prgPointer] == ',':
-                        print("Input: ", end='\r')
-                        inp = readchar()
-                        tape[pointer] = ord(inp.decode())
-                    elif self.program[prgPointer] == '[':
-                        if tape[pointer] == 0:
-                            bracket = 0
+                        prints += str(int(tape[pointer]))
+                elif self.program[prgPointer] == ',':
+                    print("Input: ", end='\r')
+                    inp = readchar()
+                    tape[pointer] = ord(inp.decode())
+                elif self.program[prgPointer] == '[':
+                    if tape[pointer] == 0:
+                        bracket = 0
+                        prgPointer += 1
+                        while prgPointer < len(self.program):
+                            if self.program[prgPointer] == ']' and bracket == 0:
+                                break
+                            if self.program[prgPointer] == '[':
+                                bracket += 1
+                            elif self.program[prgPointer] == ']':
+                                bracket -= 1
                             prgPointer += 1
-                            while prgPointer < len(self.program):
-                                if self.program[prgPointer] == ']' and bracket == 0:
-                                    break
-                                if self.program[prgPointer] == '[':
-                                    bracket += 1
-                                elif self.program[prgPointer] == ']':
-                                    bracket -= 1
-                                prgPointer += 1
-                    elif self.program[prgPointer] == ']':
-                        if tape[pointer] != 0:
-                            bracket = 0
+                elif self.program[prgPointer] == ']':
+                    if tape[pointer] != 0:
+                        bracket = 0
+                        prgPointer -= 1
+                        while prgPointer >= 0:
+                            if self.program[prgPointer] == '[' and bracket == 0:
+                                break
+                            if self.program[prgPointer] == ']':
+                                bracket += 1
+                            elif self.program[prgPointer] == '[':
+                                bracket -= 1
                             prgPointer -= 1
-                            while prgPointer >= 0:
-                                if self.program[prgPointer] == '[' and bracket == 0:
-                                    break
-                                if self.program[prgPointer] == ']':
-                                    bracket += 1
-                                elif self.program[prgPointer] == '[':
-                                    bracket -= 1
-                                prgPointer -= 1
-                    prgPointer += 1
+                prgPointer += 1
 
         except Exception as e:
             print(e)
