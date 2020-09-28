@@ -5,7 +5,7 @@ from signal import SIGINT, signal
 from readchar import readchar
 from sys import version_info, stdout
 from time import sleep
-from os import path, system
+from os import path, system, name
 import constants
 
 if version_info.major != 3:
@@ -93,7 +93,7 @@ class Parser(object):
                     for c in tape:
                         cells += f"{str(c).zfill(len(str(self.maxCellSize)))} "
 
-                    system('CLS')
+                    self.clear_screen()
                     print(f"       ")
                     print(f"Output: {prints}")
                     print(f"Tape: {cells}")
@@ -156,6 +156,20 @@ class Parser(object):
         except Exception as e:
             print(e)
             raise(EnvironmentError(constants.UNKNOW_ERROR))
+
+    @staticmethod
+    def clear_screen():
+        """
+        Clear the terminal screen, OS aware.
+        """
+
+        # Windows
+        if name == 'nt':
+            _ = system('cls')
+
+        # Mac/Linux
+        else:
+            _ = system('clear')
 
 
 if __name__ == '__main__':
