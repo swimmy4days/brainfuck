@@ -1,4 +1,4 @@
-PARSER_MSG = """Interperete And Runs A BrainFuck (*.bf) Program
+PARSER_MSG = """Interprets And Runs A BrainFuck (*.bf) Program
 --------------------------------
     An Easy To Use Simple BrainFuck Interpreter
     The Debugger Goes Through Each Commend And Shows The Tape And The Current Instruction
@@ -13,7 +13,7 @@ NO_WARNINGS_HELP = "Disables The Parsers Warnings"
 UNSUPPORTED_VERSION = "Unsupported python version"
 NO_FILE = "Must provide a source file"
 BF_FILES = "Warning: Unsupported Extension, Supports Only *.bf Files"
-LOOP_WARNING = "Warning, Unmatching Number Of '[' To ']' (Invalid Loop)"
+LOOP_WARNING = "Warning, Unmatched Number Of '[' To ']' (Invalid Loop)"
 CTRL_C = "The Process Was Closed By The User"
 TAPE_ERROR = "Error: Out Of Tape!"
-UNKNOW_ERROR = "Unknown Error"
+UNKNOWN_ERROR = "Unknown Error"

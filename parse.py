@@ -18,7 +18,7 @@ class Parser(object):
 
     Args:
         file (string): What file should i execute?
-        debug (flaot): Sould i debug?
+        debug (float): Should i debug?
         intify (bool): Print as an int or char
         no_warnings (bool): Should i print the warnings?
         size (int): What is the maximum size of each cell
@@ -97,8 +97,10 @@ class Parser(object):
                     print(f"       ")
                     print(f"Output: {prints}")
                     print(f"Tape: {cells}")
-                    print("Ptr:  {}^".format((" " * (len(str(self.maxCellSize)) + 1)) * pointer))
-                    print(f"Program: {self.program[prgPointer - 1:prgPointer + 71]}")
+                    print("Ptr:  {}^".format(
+                        (" " * (len(str(self.maxCellSize)) + 1)) * pointer))
+                    print(
+                        f"Program: {self.program[prgPointer - 1:prgPointer + 71]}")
                     print("          ^")
                 else:
                     print(f"Output: {prints}", end="\r")
@@ -155,7 +157,7 @@ class Parser(object):
 
         except Exception as e:
             print(e)
-            raise(EnvironmentError(constants.UNKNOW_ERROR))
+            raise(EnvironmentError(constants.UNKNOWN_ERROR))
 
     @staticmethod
     def clear_screen():
@@ -176,10 +178,15 @@ if __name__ == '__main__':
     prs = ArgumentParser(prog=constants.PROGRAM_NAME, formatter_class=RawDescriptionHelpFormatter,
                          description=(constants.PARSER_MSG), epilog=constants.EPILOG)
     prs.add_argument("file", help=constants.FILE_HELP,  type=str)
-    prs.add_argument("-s", "--size", help=constants.SIZE_HELP, default=255, type=int, dest="size", metavar="Size")
-    prs.add_argument("-i", "--intify", help=constants.INTIFY_HELP, action='store_true')
-    prs.add_argument("-d", "--debug", dest="debug", metavar="Sec", type=float, nargs='?', default=-1, required=False, help=constants.DEBUG_HELP)
-    prs.add_argument("--no_warnings", action='store_true', help=constants.NO_WARNINGS_HELP)
+    prs.add_argument("-s", "--size", help=constants.SIZE_HELP,
+                     default=255, type=int, dest="size", metavar="Size")
+    prs.add_argument("-i", "--intify",
+                     help=constants.INTIFY_HELP, action='store_true')
+    prs.add_argument("-d", "--debug", dest="debug", metavar="Sec", type=float,
+                     nargs='?', default=-1, required=False, help=constants.DEBUG_HELP)
+    prs.add_argument("--no_warnings", action='store_true',
+                     help=constants.NO_WARNINGS_HELP)
     args = prs.parse_args()
 
-    Parser(args.file, args.debug, args.intify, args.no_warnings, args.size).parse()
+    Parser(args.file, args.debug, args.intify,
+           args.no_warnings, args.size).parse()
